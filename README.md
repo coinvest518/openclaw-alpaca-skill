@@ -1,112 +1,97 @@
-# Alpaca Trading OpenClaw Skill
-
-Drop this folder into `~/.openclaw/skills/alpaca-trading` or keep it
-in your workspace under `skills/` for per-agent loading.
-
-Install
-```bash
-pip install -r /path/to/alpaca-trading/requirements.txt
-cp /path/to/alpaca-trading/.env.example /path/to/alpaca-trading/.env
-# edit .env with your Alpaca keys
-# Alpaca Trading Skill
-
-[![GitHub Stars](https://img.shields.io/github/stars/coinvest518/openclaw-alpaca-trading-skill?style=social)](https://github.com/coinvest518/openclaw-alpaca-trading-skill/stargazers)  
+[![GitHub Stars](https://img.shields.io/github/stars/coinvest518/openclaw-alpaca-skill?style=social)](https://github.com/coinvest518/openclaw-alpaca-skill/stargazers)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](#)
 
-This OpenClaw skill provides a lightweight Alpaca trading integration and
-technical analysis utilities. It supports common account queries, market and
-limit orders (paper by default), simple market data fetching, and indicator
-analysis (EMA, RSI, ATR, MACD, Bollinger Bands, VWAP).
+# Alpaca Trading OpenClaw Skill
 
-Important safety notes
+Lightweight Alpaca trading and technical analysis for OpenClaw agents. Paper trading by default.
 
-- Paper trading is the default. Live trading requires `ALPACA_PAPER=false`
-  in your `.env` and explicit `confirm` in the same command to execute live
-  orders. Review all orders before confirming — this skill may execute real
-  trades when live mode is enabled.
+Quick links
+- OpenClaw: https://github.com/openclaw
+- Alpaca Markets: https://alpaca.markets
+- Python: https://python.org/
 
-## 📋 Checklist (before installing)
-1. Python 3.10+ installed
-2. Create an Alpaca account (https://alpaca.markets) and generate API keys
-3. Copy `.env.example` → `.env` and populate `ALPACA_API_KEY` and
-   `ALPACA_SECRET_KEY`
-4. (Optional) Install into OpenClaw skills directory for global usage
+## 📋 Full checklist (before installing the skill)
+1. Python 3.10+ installed (install from python.org)
+2. Alpaca account created at https://alpaca.markets (free paper trading available)
+3. Alpaca API keys generated from dashboard (Keys & Secrets section)
+4. OpenClaw installed (if using global skills directory)
+5. Decided on paper vs. live trading mode
 
-## Installation
+## Installing the skill
+1. Copy `alpaca-trading/` folder to your OpenClaw skills directory (example: `~/.openclaw/skills/`).
+2. Install Python dependencies: `pip install -r alpaca-trading/requirements.txt`
+3. Create `.env` from the included `.env.example` and paste your Alpaca API key and secret.
+4. Restart OpenClaw gateway: `openclaw gateway restart`
+5. Verify: `openclaw skills list | grep alpaca` (should appear)
 
-Copy the skill folder into your OpenClaw skills path (or keep it in your
-workspace for per-agent loading) and install Python dependencies:
+## 🔐 How the trading safety works
+WITHOUT live mode confirmation (safe):
+- Default is paper trading → all orders execute in simulated environment ✅
+- Your real money is never at risk ✅
 
-```bash
-# copy into OpenClaw skills (optional)
-cp -r ./alpaca-trading ~/.openclaw/skills/alpaca-trading
+WITH live mode (requires explicit opt-in):
+- Set `ALPACA_PAPER=false` in `.env` file
+- Use `confirm` keyword in commands to execute real trades
+- Orders execute against your real brokerage account ⚠️
 
-# install dependencies
-pip install -r ./alpaca-trading/requirements.txt
-
-# create .env and edit with your Alpaca keys
-cp ./alpaca-trading/.env.example ./alpaca-trading/.env
+## Folder structure (final)
+```
+~/.openclaw/skills/
+└── alpaca-trading/
+    ├── SKILL.md         ← OpenClaw metadata (loads skill automatically)
+    ├── README.md        ← this document
+    ├── agent.py         ← CLI agent with natural-language router
+    ├── alpaca_client.py ← REST API wrapper
+    ├── indicators.py    ← technical analysis (pandas-based)
+    ├── requirements.txt ← Python dependencies
+    └── .env.example     ← template for API keys
 ```
 
-To refresh skills in a running gateway:
-
-```bash
-openclaw gateway restart
-# or
-openclaw agent --message "refresh skills"
-```
-
-## 🔧 What this skill can do
-
+## Capabilities
 - Query account info and buying power
-- List open positions
-- Submit simple market orders (paper by default)
-- Fetch quick quotes (via latest bar)
-- Run technical analysis on OHLCV bars: EMA, RSI, ATR, MACD, Bollinger Bands, VWAP
+- List open positions and portfolio
+- Submit market orders (paper by default)
+- Fetch real-time quotes (latest bar data)
+- Technical analysis: EMA, RSI, ATR, MACD, Bollinger Bands, VWAP
+- Historical bar data retrieval
 
-## Usage examples (CLI)
+## Restrictions (safety defaults)
+- Live trading DISABLED by default
+- Limit orders NOT implemented (market orders only)
+- Stop-loss and bracket orders NOT implemented
+- No automated position management
 
+## Usage
+
+When a user asks about trading or analysis:
+
+1. Run the agent:
 ```bash
-cd ./alpaca-trading
-python agent.py "account"
-python agent.py "positions"
-python agent.py "quote AAPL"
-python agent.py "analyse AAPL"
-python agent.py "buy 5 AAPL"
+cd ~/.openclaw/skills/alpaca-trading && python agent.py "<user request>"
 ```
+2. Parse the JSON response and present results clearly.
+3. If executing trades, confirm paper vs. live mode.
 
-## Files included
-
-```
-alpaca-trading/
-├── SKILL.md        ← OpenClaw metadata + instructions
-├── README.md       ← this document
-├── agent.py        ← example CLI agent and natural-language router
-├── alpaca_client.py← small Alpaca REST wrapper (requests)
-├── indicators.py   ← pandas-based technical indicators
-├── requirements.txt← Python dependencies
-└── .env.example    ← template for your keys
-```
-
-## Development notes
-
-- The `agent.py` is intentionally minimal — extend its parsing for more
-  natural language phrases (dollar-based buys, limit/stop orders, bracket
-  orders). Indicator logic lives in `indicators.py` and returns a compact
-  dictionary suitable for Markdown output.
+## Examples
+- "Show my account" → fetch account info and buying power
+- "What positions do I have?" → list current positions
+- "Quote AAPL" → get latest price and bar data
+- "Analyze TSLA" → run technical indicators on recent bars
+- "Buy 5 AAPL" → submit market order (paper mode)
 
 ## Security & disclaimers
+- ⚠️ This skill can execute REAL trades when `ALPACA_PAPER=false`
+- Never store live API keys in public repositories
+- Use environment variables or secret vault for production
+- This is provided as-is; trading carries financial risk
+- Not financial advice
 
-- This skill can execute trades when `ALPACA_PAPER=false`. Never store live
-  keys in public repositories. Use environment variables or a secret vault.
-- This is provided as-is; trading carries financial risk and this is not
-  financial advice.
-
----
-
-If you want, I can:
-- expand the CLI to parse natural-language order phrases,
-- add unit tests for `indicators.py`, or
-- prepare a ClawHub package manifest for publishing.
-# openclaw-alpaca-skill
+## Files added by this package
+- `alpaca-trading/.env.example` — shows `ALPACA_API_KEY` and `ALPACA_SECRET_KEY` placeholders
+- `alpaca-trading/SKILL.md` — metadata for OpenClaw skill discovery
+- `alpaca-trading/agent.py` — minimal CLI agent with command router
+- `alpaca-trading/alpaca_client.py` — REST client for Alpaca API
+- `alpaca-trading/indicators.py` — pandas-based technical analysis functions
+- `alpaca-trading/requirements.txt` — Python dependencies (alpaca-py, pandas, requests)
 
