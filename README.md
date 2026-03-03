@@ -1,3 +1,7 @@
+
+<img width="1203" height="677" alt="download (45)" src="https://github.com/user-attachments/assets/183bc990-73c7-462f-b1a1-eaf3063b8bdb" />
+
+
 [![GitHub Stars](https://img.shields.io/github/stars/coinvest518/openclaw-alpaca-skill?style=social)](https://github.com/coinvest518/openclaw-alpaca-skill/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](#)
